@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdtprojectproperties>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.IncludePaths">
+<language name="C++ Source File">
+<includepath>${CG_TOOL_ROOT}/include</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1\examples\boards\ek-tm4c123gxl</includepath>
+<includepath>${SW_ROOT}</includepath>
+
+</language>
+<language name="Assembly Source File">
+<includepath>${CG_TOOL_ROOT}/include</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1\examples\boards\ek-tm4c123gxl</includepath>
+<includepath>${SW_ROOT}</includepath>
+
+</language>
+<language name="Assembly Source File">
+<includepath>${CG_TOOL_ROOT}/include</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1\examples\boards\ek-tm4c123gxl</includepath>
+<includepath>${SW_ROOT}</includepath>
+
+</language>
+<language name="C Source File">
+<includepath>${CG_TOOL_ROOT}/include</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1</includepath>
+<includepath>D:\ti\TivaWare_C_Series-1.1\examples\boards\ek-tm4c123gxl</includepath>
+<includepath>${SW_ROOT}</includepath>
+
+</language>
+<language name="Linker Command File">
+
+</language>
+<language name="Linker Command File">
+
+</language>
+<language name="Linker Command File">
+
+</language>
+</section>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.Macros">
+<language name="C++ Source File">
+<macro>
+<name>ccs</name><value>"ccs"</value>
+</macro>
+<macro>
+<name>PART_TM4C123GH6PM</name><value/>
+</macro>
+<macro>
+<name>TARGET_IS_BLIZZARD_RB1</name><value/>
+</macro>
+<macro>
+<name>UART_BUFFERED</name><value/>
+</macro>
+
+</language>
+<language name="Assembly Source File">
+<macro>
+<name>ccs</name><value>"ccs"</value>
+</macro>
+<macro>
+<name>PART_TM4C123GH6PM</name><value/>
+</macro>
+<macro>
+<name>TARGET_IS_BLIZZARD_RB1</name><value/>
+</macro>
+<macro>
+<name>UART_BUFFERED</name><value/>
+</macro>
+
+</language>
+<language name="Assembly Source File">
+<macro>
+<name>ccs</name><value>"ccs"</value>
+</macro>
+<macro>
+<name>PART_TM4C123GH6PM</name><value/>
+</macro>
+<macro>
+<name>TARGET_IS_BLIZZARD_RB1</name><value/>
+</macro>
+<macro>
+<name>UART_BUFFERED</name><value/>
+</macro>
+
+</language>
+<language name="C Source File">
+<macro>
+<name>ccs</name><value>"ccs"</value>
+</macro>
+<macro>
+<name>PART_TM4C123GH6PM</name><value/>
+</macro>
+<macro>
+<name>TARGET_IS_BLIZZARD_RB1</name><value/>
+</macro>
+<macro>
+<name>UART_BUFFERED</name><value/>
+</macro>
+
+</language>
+<language name="Linker Command File">
+
+</language>
+<language name="Linker Command File">
+
+</language>
+<language name="Linker Command File">
+
+</language>
+</section>
+</cdtprojectproperties>

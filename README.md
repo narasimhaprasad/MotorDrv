@@ -20,3 +20,7 @@ PF1			Debug
 Note all control has been performed in Q13.19 format
 Resolution : 1.907e-6
 Data range : -4905 to 4905
+
+Author : Narasimha Prasad Prabhu
+
+Licence: CC sharealike non-commercial
