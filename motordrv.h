@@ -39,7 +39,5 @@
 #include "drivers/rgb.h"
 #include "drivers/buttons.h"
 #include "motordrv.h"
-#include "ADC/motordrv_adc.h"
 
-#include "motordrv_data.h"
 #endif /* MOTORINV_H_ */

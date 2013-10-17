@@ -8,6 +8,9 @@
 #ifndef MOTORINV_DATA_H_
 #define MOTORINV_DATA_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef struct
 {
 	uint32_t cycle;
@@ -73,6 +76,6 @@ extern adc_t adc;
 extern pid_t vpid;
 extern pid_t ipid;
 extern statemat_t statematrix[3][3];
-extern state_t currenstate;
+extern state_t currentstate;
 
 #endif /* MOTORINV_H_ */

@@ -1,4 +1,5 @@
 #include "motordrv.h"
+#include "motordrv_data.h"
 
 void hardware_init(void)
 {
@@ -77,7 +78,7 @@ void hardware_init(void)
 	/*
 	 * Setup ISR for updating SPWM duty cycle
 	 */
-	uint32_t ui32TimIntSine = SysCtlClockGet()/20000;
+	uint32_t ui32TimIntSine = SysCtlClockGet()/200000;
 
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
 
@@ -87,7 +88,7 @@ void hardware_init(void)
 	TimerLoadSet(TIMER2_BASE, TIMER_A, ui32TimIntSine-1);
 
 	TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-	IntPrioritySet(INT_TIMER2A, 0x00);
+	IntPrioritySet(INT_TIMER2A, 0x03);
 	TimerEnable(TIMER2_BASE, TIMER_A);
 
 	uint32_t ui32TimIntIcontrol = SysCtlClockGet()/40000;
@@ -113,14 +114,14 @@ void hardware_init(void)
 	HWREG(0x40005524) |= 0x01;
 	HWREG(0x40005520) = 0x00;
 
-	GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4));
+	GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);
 
-	GPIOPadConfigSet(GPIO_PORTF_BASE,(GPIO_PIN_0|GPIO_PIN_4),GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
+	GPIOPadConfigSet(GPIO_PORTF_BASE,GPIO_PIN_4,GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
 
-	GPIOIntTypeSet(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4), GPIO_FALLING_EDGE | GPIO_RISING_EDGE);
+	GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE);
 
 	IntPrioritySet(INT_GPIOF,0x00);
-	GPIOIntEnable(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4));
+	GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_4);
 
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
 

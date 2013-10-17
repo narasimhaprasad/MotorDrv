@@ -1,5 +1,5 @@
 #include "motordrv.h"
-
+#include "motordrv_data.h"
 /*
  * ADC processing function
  * Actual adc voltage = dig * 3.3/4095

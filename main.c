@@ -1,9 +1,12 @@
 #include "motordrv.h"
+#include "motordrv_data.h"
 #include "Init/motordrv_init.h"
+#include "StateMachine/motordrv_state.h"
+#include "ADC/motordrv_adc.h"
 
 static __inline int32_t pidcontrol32(pid_t *S, int32_t err);
 static __inline void pidreset(pid_t *S);
-act_t stateeval(evt_t e);
+//act_t stateeval(evt_t e);
 
 inv_t inv;
 conv_t conv;
@@ -242,9 +245,9 @@ static uint32_t invSineTable[]=
 
 statemat_t statematrix[3][3]=
 {
-		{{state_0, noact}, {state_1, act_0}, {state_2, act_3}},
-		{{state_1, noact}, {state_2, act_1}, {state_0, act_2}},
-		{{state_2, noact}, {state_0, act_2}, {state_1, act_4}}
+		{{state_0, noact}, {state_1, act_1}, {state_2, act_3}},
+		{{state_1, noact}, {state_2, act_2}, {state_0, act_2}},
+		{{state_2, noact}, {state_0, act_0}, {state_1, act_4}}
 };
 
 state_t currentstate = state_0;
@@ -292,13 +295,13 @@ int main(void) {
 	 * Initializes: PWM, ADC and configures them
 	 */
 	hardware_init();
-
+	stateaction(act_0);
 	/*
 	 * Start the ISRs
 	 */
-//	IntEnable(INT_PWM1_1);
-//	IntEnable(INT_TIMER2A);
-//	IntEnable(INT_TIMER1A);
+	IntEnable(INT_PWM1_1);
+	IntEnable(INT_TIMER2A);
+	IntEnable(INT_TIMER1A);
 	IntEnable(INT_GPIOF);
 
 	while(1)
@@ -312,11 +315,14 @@ int main(void) {
 
 void GPIOFIntHandler(void)
 {
-	uint32_t temp;
-	GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0|GPIO_PIN_4);
-	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
-	temp = GPIOIntStatus(GPIO_PORTF_BASE, true);
+	act_t requiredact;
 
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
+	SysCtlDelay(100);
+	requiredact = stateeval(sw1);
+	stateaction(requiredact);
+
+	GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);
 	IntPendClear(INT_GPIOF);
 }
 
@@ -328,7 +334,7 @@ void GPIOFIntHandler(void)
 void IntSin_Timer2A(void)
 {
 	TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-//	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
 	PWMPulseWidthSet(PWM0_BASE, PWM_GEN_0, inv.cycle);
 
 	inv.cycle = invSineTable[i];
@@ -336,7 +342,7 @@ void IntSin_Timer2A(void)
 
 	if(i >= 0xFA0)
 		i = 0x00;
-//	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
 	IntPendClear(INT_TIMER2A);
  }
 
@@ -374,7 +380,6 @@ void PWM1IntHandler(void)
 	adcproc(&adc);
 	acc1 = (int64_t)abs(adc.ivoltage)*pidcontrol32(&vpid, vpid.ref - adc.ovoltage);	//Q 13.19 * 13.19 = Q26.38
 	ipid.ref = (int32_t)(acc1>>19);
-	stateeval(sw2);
 
 	IntPendClear(INT_PWM1_1);
 }
@@ -411,17 +416,8 @@ static __inline void pidreset(pid_t *S)
 	uint8_t j;
 	for(j=0; j<2; j++)
 	{
-		S->state[i] = 0;
+		S->state[j] = 0;
 	}
-}
-
-act_t stateeval(evt_t e)
-{
-	statemat_t statetrans = statematrix[currentstate][e];
-
-	currentstate = statetrans.nextState;
-
-	return statetrans.actionToDo;
 }
 /*
  * Debug
