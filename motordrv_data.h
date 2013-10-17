@@ -41,10 +41,38 @@ typedef struct
 	uint8_t status;
 }pid_t;
 
+typedef enum{
+	state_0,
+	state_1,
+	state_2
+}state_t;
+
+typedef enum{
+	noact,
+	act_0,
+	act_1,
+	act_2,
+	act_3,
+	act_4
+}act_t;
+
+typedef enum{
+	noevt,
+	sw1,
+	sw2
+}evt_t;
+
+typedef struct{
+	state_t nextState;
+	act_t actionToDo;
+}statemat_t;
+
 extern inv_t inv;
 extern conv_t conv;
 extern adc_t adc;
 extern pid_t vpid;
 extern pid_t ipid;
+extern statemat_t statematrix[3][3];
+extern state_t currenstate;
 
 #endif /* MOTORINV_H_ */

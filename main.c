@@ -3,6 +3,7 @@
 
 static __inline int32_t pidcontrol32(pid_t *S, int32_t err);
 static __inline void pidreset(pid_t *S);
+act_t stateeval(evt_t e);
 
 inv_t inv;
 conv_t conv;
@@ -239,6 +240,15 @@ static uint32_t invSineTable[]=
 1646, 1648, 1649, 1651, 1652, 1654, 1655, 1657, 1658, 1660, 1661, 1663, 1664, 1666, 1667
 };
 
+statemat_t statematrix[3][3]=
+{
+		{{state_0, noact}, {state_1, act_0}, {state_2, act_3}},
+		{{state_1, noact}, {state_2, act_1}, {state_0, act_2}},
+		{{state_2, noact}, {state_0, act_2}, {state_1, act_4}}
+};
+
+state_t currentstate = state_0;
+
 /*
  * Micro-controller Pin Setup
  * PWM:
@@ -284,15 +294,12 @@ int main(void) {
 	hardware_init();
 
 	/*
-	 *
-	 */
-
-	/*
 	 * Start the ISRs
 	 */
-	IntEnable(INT_PWM1_1);
+//	IntEnable(INT_PWM1_1);
 //	IntEnable(INT_TIMER2A);
-	IntEnable(INT_TIMER1A);
+//	IntEnable(INT_TIMER1A);
+	IntEnable(INT_GPIOF);
 
 	while(1)
 	{
@@ -302,6 +309,18 @@ int main(void) {
 	return 0;
 }
 
+
+void GPIOFIntHandler(void)
+{
+	uint32_t temp;
+	GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0|GPIO_PIN_4);
+	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
+	temp = GPIOIntStatus(GPIO_PORTF_BASE, true);
+
+	IntPendClear(INT_GPIOF);
+}
+
+
 /*
  * Timer ISR to setup SPWM
  * Currently deciding speed
@@ -309,7 +328,7 @@ int main(void) {
 void IntSin_Timer2A(void)
 {
 	TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-
+//	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
 	PWMPulseWidthSet(PWM0_BASE, PWM_GEN_0, inv.cycle);
 
 	inv.cycle = invSineTable[i];
@@ -317,7 +336,7 @@ void IntSin_Timer2A(void)
 
 	if(i >= 0xFA0)
 		i = 0x00;
-
+//	GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1)^0x02);
 	IntPendClear(INT_TIMER2A);
  }
 
@@ -355,6 +374,7 @@ void PWM1IntHandler(void)
 	adcproc(&adc);
 	acc1 = (int64_t)abs(adc.ivoltage)*pidcontrol32(&vpid, vpid.ref - adc.ovoltage);	//Q 13.19 * 13.19 = Q26.38
 	ipid.ref = (int32_t)(acc1>>19);
+	stateeval(sw2);
 
 	IntPendClear(INT_PWM1_1);
 }
@@ -395,6 +415,14 @@ static __inline void pidreset(pid_t *S)
 	}
 }
 
+act_t stateeval(evt_t e)
+{
+	statemat_t statetrans = statematrix[currentstate][e];
+
+	currentstate = statetrans.nextState;
+
+	return statetrans.actionToDo;
+}
 /*
  * Debug
  */

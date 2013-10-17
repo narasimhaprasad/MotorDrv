@@ -42,7 +42,7 @@ void hardware_init(void)
 	GPIOPinTypePWM(GPIO_PORTB_BASE, (GPIO_PIN_6 | GPIO_PIN_7));
 
 	PWMGenConfigure(PWM0_BASE, PWM_GEN_0, (PWM_GEN_MODE_UP_DOWN | PWM_GEN_MODE_GEN_SYNC_LOCAL | PWM_GEN_MODE_FAULT_UNLATCHED | PWM_GEN_MODE_DB_NO_SYNC));
-	PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, inv.period);
+	PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, inv.period-1);
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, inv.cycle);
 	PWMDeadBandEnable(PWM0_BASE, PWM_GEN_0, 13, 0);
 	PWMGenEnable(PWM0_BASE, PWM_GEN_0);
@@ -64,7 +64,7 @@ void hardware_init(void)
 	GPIOPinTypePWM(GPIO_PORTA_BASE, GPIO_PIN_6);	//Configure PA6 as PWM
 
 	PWMGenConfigure(PWM1_BASE, PWM_GEN_1, (PWM_GEN_MODE_UP_DOWN | PWM_GEN_MODE_GEN_NO_SYNC| PWM_GEN_MODE_DB_NO_SYNC));	//Configure PWM1, G1 as Down counter with no sync of updates
-	PWMGenPeriodSet(PWM1_BASE, PWM_GEN_1, conv.period);	//Set Period of PWM1, G1
+	PWMGenPeriodSet(PWM1_BASE, PWM_GEN_1, conv.period-1);	//Set Period of PWM1, G1
 	PWMPulseWidthSet(PWM1_BASE, PWM_OUT_2, conv.cycle);	//Set phase shift
 
 	PWMIntEnable(PWM1_BASE, PWM_INT_GEN_1);
@@ -77,14 +77,14 @@ void hardware_init(void)
 	/*
 	 * Setup ISR for updating SPWM duty cycle
 	 */
-	uint32_t ui32TimIntSine = SysCtlClockGet()/200000;
+	uint32_t ui32TimIntSine = SysCtlClockGet()/20000;
 
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER2);
 
 	SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER2);
 
 	TimerConfigure(TIMER2_BASE, TIMER_CFG_A_PERIODIC);
-	TimerLoadSet(TIMER2_BASE, TIMER_A, ui32TimIntSine - 1);
+	TimerLoadSet(TIMER2_BASE, TIMER_A, ui32TimIntSine-1);
 
 	TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 	IntPrioritySet(INT_TIMER2A, 0x00);
@@ -96,7 +96,7 @@ void hardware_init(void)
 	SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER1);
 
 	TimerConfigure(TIMER1_BASE, TIMER_CFG_A_PERIODIC);
-	TimerLoadSet(TIMER1_BASE, TIMER_A, ui32TimIntIcontrol - 1);
+	TimerLoadSet(TIMER1_BASE, TIMER_A, ui32TimIntIcontrol-1);
 
 	TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
 	IntPrioritySet(INT_TIMER1A, 0x01);
@@ -107,7 +107,20 @@ void hardware_init(void)
 	 */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
-	SysCtlPeripheralReset(SYSCTL_PERIPH_GPIOF);
+//	SysCtlPeripheralReset(SYSCTL_PERIPH_GPIOF);
+
+	HWREG(0x40005520) = 0x4C4F434B;
+	HWREG(0x40005524) |= 0x01;
+	HWREG(0x40005520) = 0x00;
+
+	GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4));
+
+	GPIOPadConfigSet(GPIO_PORTF_BASE,(GPIO_PIN_0|GPIO_PIN_4),GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
+
+	GPIOIntTypeSet(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4), GPIO_FALLING_EDGE | GPIO_RISING_EDGE);
+
+	IntPrioritySet(INT_GPIOF,0x00);
+	GPIOIntEnable(GPIO_PORTF_BASE, (GPIO_PIN_0|GPIO_PIN_4));
 
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
 
